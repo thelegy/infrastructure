@@ -1,14 +1,25 @@
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.nixidy.url = "github:arnarg/nixidy";
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+    };
+    nixidy = {
+      url = "github:arnarg/nixidy";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixhelm = {
+      url = "github:farcaller/nixhelm";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
   outputs =
-    {
-      self,
+    inputs@{
       nixpkgs,
       flake-utils,
       nixidy,
+      ...
     }:
     (flake-utils.lib.eachDefaultSystem (
       system:
@@ -21,6 +32,7 @@
         nixidyEnvs = nixidy.lib.mkEnvs {
           inherit pkgs;
 
+          charts = inputs.nixhelm.chartsDerivations.${system};
           modules = [ ./modules ];
 
           envs = {
