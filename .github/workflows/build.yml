@@ -1,0 +1,41 @@
+name: Generate Kubernetes manifests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: main
+      - uses: actions/checkout@v4
+        with:
+          ref: env/prod
+          path: prod
+      - uses: DeterminateSystems/nix-installer-action@v16
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        timeout-minutes: 5
+
+      - uses: arnarg/nixidy/actions/build@main
+        id: build-prod
+        with:
+          environment: ./main#prod
+      - run: rsync --copy-links --chmod=u+rwX --recursive --delete '${{steps.build-prod.outputs.out-path}}/' prod/manifests
+
+      - uses: EndBug/add-and-commit@v9
+        if: github.repository == 'thelegy/infrastructure' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: commit
+        with:
+          cwd: prod
+          default_author: github_actions
+          message: "chore: promote to prod ${{github.sha}}"
+          fetch: false
