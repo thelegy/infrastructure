@@ -9,12 +9,21 @@ let
 
   namespace = "traefik";
   values = lib.attrsets.recursiveUpdate {
-    ingressClass.enabled = true;
+    ingressClass = {
+      enabled = true;
+      isDefaultClass = true;
+      name = cfg.ingressClassName;
+    };
+    providers.kubernetesIngress.publishedService.enabled = true;
   } cfg.values;
 in
 {
   options.services.traefik = with lib; {
     enable = mkEnableOption "the traefik";
+    ingressClassName = mkOption {
+      type = types.str;
+      default = "traefik";
+    };
     values = mkOption {
       type = types.attrsOf types.anything;
       default = { };
