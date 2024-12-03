@@ -3,4 +3,5 @@
   services.traefik = {
     enable = true;
   };
+  services.openshift-console.enable = true;
 }

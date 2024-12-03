@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: quay.io/openshift/origin-console
+  tag: latest
+
+service:
+  type: NodePort
+  port: 9000
+  targetPort: 9000
+
+kubernetes:
+  serviceHost: "your-kubernetes-api-server"
+  servicePort: "6443"
+
