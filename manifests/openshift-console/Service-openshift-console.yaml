@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: openshift-console
+  namespace: kube-system
+spec:
+  ports:
+    - nodePort: 30036
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+  selector:
+    app: openshift-console
+  type: NodePort
